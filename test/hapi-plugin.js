@@ -66,7 +66,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 		});
 	});
 
-	it('POST /api/process-monitor-logs/logManager', function(done) {
+	it('POST /api/process-monitor-logs/logManager/logDir', function(done) {
 		var options = {
 			eventEmitter : eventEmitter,
 			logLevel : 'DEBUG'
@@ -83,7 +83,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 
 				server.inject({
 					method : 'POST',
-					url : '/api/process-monitor-logs/logManager',
+					url : '/api/process-monitor-logs/logManager/logDir',
 					payload : JSON.stringify(payload),
 					headers : {
 						'Content-Type' : 'application/json'
@@ -92,6 +92,262 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 					expect(res.statusCode).to.equal(202);
 					eventEmitter.emit('STOPPED');
 					setImmediate(done);
+				});
+			}
+
+		});
+	});
+
+	it('POST /api/process-monitor-logs/logManager/logDir - multiple times is ok', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(202);
+
+					server.inject({
+						method : 'POST',
+						url : '/api/process-monitor-logs/logManager/logDir',
+						payload : JSON.stringify(payload),
+						headers : {
+							'Content-Type' : 'application/json'
+						}
+					}, function(res) {
+						expect(res.statusCode).to.equal(200);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+				});
+			}
+
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(202);
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/logDir/' + logDir,
+					}, function(res) {
+						console.log(res.payload);
+						expect(res.statusCode).to.equal(200);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+
+				});
+			}
+
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(202);
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/logDir//sdfsdfsdf',
+					}, function(res) {
+						expect(res.statusCode).to.equal(404);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+
+				});
+			}
+
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/logDirs', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir,
+					logLevel : 'DEBUG'
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(202);
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/logDirs'
+					}, function(res) {
+						console.log(res.payload);
+						expect(res.statusCode).to.equal(200);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+
+				});
+			}
+
+		});
+
+	});
+
+	it('DELETE /api/process-monitor-logs/logManager', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir,
+					logLevel : 'DEBUG'
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(202);
+
+					server.inject({
+						method : 'DELETE',
+						url : '/api/process-monitor-logs/logManager/logDir/' + logDir
+					}, function(res) {
+						expect(res.statusCode).to.equal(200);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+
+				});
+			}
+
+		});
+	});
+
+	it('DELETE /api/process-monitor-logs/logManager - deleting a second time returns 404', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir,
+					logLevel : 'DEBUG'
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(202);
+
+					server.inject({
+						method : 'DELETE',
+						url : '/api/process-monitor-logs/logManager/logDir/' + logDir
+					}, function(res) {
+						expect(res.statusCode).to.equal(200);
+
+						server.inject({
+							method : 'DELETE',
+							url : '/api/process-monitor-logs/logManager/logDir/' + logDir
+						}, function(res) {
+							expect(res.statusCode).to.equal(404);
+							eventEmitter.emit('STOPPED');
+							setImmediate(done);
+						});
+					});
+
 				});
 			}
 
