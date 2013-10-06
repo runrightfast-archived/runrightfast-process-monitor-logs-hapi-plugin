@@ -18,18 +18,83 @@
 var expect = require('chai').expect;
 var Hapi = require('hapi');
 
+var events = require('runrightfast-commons').events;
+var eventEmitter = new events.AsyncEventEmitter();
+
+var fs = require('fs');
+var file = require('file');
+var path = require('path');
+
+var logDir = file.path.abspath('temp/logs');
+
 describe('LoggingService Proxy Hapi Plugin', function() {
+
+	before(function(done) {
+		file.mkdirs(logDir, parseInt('0755', 8), function(err) {
+			if (err) {
+				done(err);
+			} else {
+				done();
+			}
+		});
+	});
+
+	afterEach(function(done) {
+		setTimeout(function() {
+			fs.readdir(logDir, function(err, names) {
+				names.forEach(function(name) {
+					fs.unlinkSync(path.join(logDir, name));
+					console.log('DELETED : ' + name);
+				});
+				done();
+			});
+		}, 50);
+	});
 
 	it('can be added as a plugin to hapi', function(done) {
 
 		var options = {
-		/* TODO: add plugin options here */
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
 		};
 
 		var server = new Hapi.Server();
 		server.pack.require('../', options, function(err) {
 			expect(err).to.not.exist;
+			eventEmitter.emit('STOPPED');
 			done();
+		});
+	});
+
+	it('POST /api/process-monitor-logs/logManager', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(202);
+					eventEmitter.emit('STOPPED');
+					setImmediate(done);
+				});
+			}
+
 		});
 	});
 
