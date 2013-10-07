@@ -90,7 +90,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						'Content-Type' : 'application/json'
 					}
 				}, function(res) {
-					expect(res.statusCode).to.equal(202);
+					expect(res.statusCode).to.equal(201);
 					eventEmitter.emit('STOPPED');
 					setImmediate(done);
 				});
@@ -122,7 +122,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						'Content-Type' : 'application/json'
 					}
 				}, function(res) {
-					expect(res.statusCode).to.equal(202);
+					expect(res.statusCode).to.equal(201);
 
 					server.inject({
 						method : 'POST',
@@ -165,7 +165,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						'Content-Type' : 'application/json'
 					}
 				}, function(res) {
-					expect(res.statusCode).to.equal(202);
+					expect(res.statusCode).to.equal(201);
 
 					server.inject({
 						method : 'GET',
@@ -183,7 +183,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 		});
 	});
 
-	it('GET /api/process-monitor-logs/logManager/logDirListing/{logDir*}', function(done) {
+	it('GET /api/process-monitor-logs/logManager/ls/{logDir*}', function(done) {
 		var options = {
 			eventEmitter : eventEmitter,
 			logLevel : 'DEBUG'
@@ -206,7 +206,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						'Content-Type' : 'application/json'
 					}
 				}, function(res) {
-					expect(res.statusCode).to.equal(202);
+					expect(res.statusCode).to.equal(201);
 
 					var logFileName = 'ops.' + process.pid + '.log.001';
 					var logFile = path.join(logDir, logFileName);
@@ -214,7 +214,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 
 					server.inject({
 						method : 'GET',
-						url : '/api/process-monitor-logs/logManager/logDirListing/' + logDir,
+						url : '/api/process-monitor-logs/logManager/ls/' + logDir,
 					}, function(res) {
 						console.log(res.payload);
 						expect(res.statusCode).to.equal(200);
@@ -236,6 +236,53 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 				});
 			}
 
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/tail/{logDir*}', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(201);
+
+					var logFileName = 'ops.' + process.pid + '.log.001';
+					var fileData = '';
+					for ( var i = 0; i < 20; i++) {
+						fileData += ('#' + i + '\n');
+					}
+					var logFile = path.join(logDir, logFileName);
+					fs.writeFileSync(logFile, fileData);
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/tail/' + logFile,
+					}, function(res) {
+						console.log(res.headers);
+						expect(res.statusCode).to.equal(200);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+				});
+			}
 		});
 	});
 
@@ -262,7 +309,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						'Content-Type' : 'application/json'
 					}
 				}, function(res) {
-					expect(res.statusCode).to.equal(202);
+					expect(res.statusCode).to.equal(201);
 
 					server.inject({
 						method : 'GET',
@@ -304,7 +351,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						'Content-Type' : 'application/json'
 					}
 				}, function(res) {
-					expect(res.statusCode).to.equal(202);
+					expect(res.statusCode).to.equal(201);
 
 					server.inject({
 						method : 'GET',
@@ -347,7 +394,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						'Content-Type' : 'application/json'
 					}
 				}, function(res) {
-					expect(res.statusCode).to.equal(202);
+					expect(res.statusCode).to.equal(201);
 
 					server.inject({
 						method : 'DELETE',
@@ -388,7 +435,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						'Content-Type' : 'application/json'
 					}
 				}, function(res) {
-					expect(res.statusCode).to.equal(202);
+					expect(res.statusCode).to.equal(201);
 
 					server.inject({
 						method : 'DELETE',
