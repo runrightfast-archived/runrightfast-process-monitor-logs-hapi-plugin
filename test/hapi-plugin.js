@@ -27,6 +27,7 @@ var file = require('file');
 var path = require('path');
 
 var logDir = file.path.abspath('temp/logs');
+console.log('logDir = ' + logDir);
 
 describe('LoggingService Proxy Hapi Plugin', function() {
 
@@ -239,6 +240,51 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 		});
 	});
 
+	it('GET /api/process-monitor-logs/logManager/ls/{logDir*} - for non managed logDir', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(201);
+
+					var logFileName = 'ops.' + process.pid + '.log.001';
+					var logFile = path.join(logDir, logFileName);
+					fs.writeFileSync(logFile, '\nSOME DATA');
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/ls/' + logDir + '/ssfsdfsf',
+					}, function(res) {
+						console.log(res.payload);
+						expect(res.statusCode).to.equal(404);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+
+				});
+			}
+
+		});
+	});
+
 	it('GET /api/process-monitor-logs/logManager/tail/{logDir*}', function(done) {
 		var options = {
 			eventEmitter : eventEmitter,
@@ -278,6 +324,102 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 					}, function(res) {
 						console.log(res.headers);
 						expect(res.statusCode).to.equal(200);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+				});
+			}
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/tail/{logDir*} - for non existent file', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(201);
+
+					var logFileName = 'ops.' + process.pid + '.log.001';
+					var fileData = '';
+					for ( var i = 0; i < 20; i++) {
+						fileData += ('#' + i + '\n');
+					}
+					var logFile = path.join(logDir, logFileName);
+					fs.writeFileSync(logFile, fileData);
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/tail/' + logDir + '/sdfdsf',
+					}, function(res) {
+						console.log(res.headers);
+						console.log(res.payload);
+						expect(res.statusCode).to.equal(404);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+				});
+			}
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/tail/{logDir*} - for non existent logDir', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(201);
+
+					var logFileName = 'ops.' + process.pid + '.log.001';
+					var fileData = '';
+					for ( var i = 0; i < 20; i++) {
+						fileData += ('#' + i + '\n');
+					}
+					var logFile = path.join(logDir, logFileName);
+					fs.writeFileSync(logFile, fileData);
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/tail//sdfsdsg',
+					}, function(res) {
+						console.log(res.headers);
+						console.log(res.payload);
+						expect(res.statusCode).to.equal(404);
 						eventEmitter.emit('STOPPED');
 						setImmediate(done);
 					});
@@ -373,6 +515,100 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 					}, function(res) {
 						console.log(res.headers);
 						expect(res.statusCode).to.equal(200);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+				});
+			}
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/head/{logDir*} - for non existing file', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(201);
+
+					var logFileName = 'ops.' + process.pid + '.log.001';
+					var fileData = '';
+					for ( var i = 0; i < 20; i++) {
+						fileData += ('#' + i + '\n');
+					}
+					var logFile = path.join(logDir, logFileName);
+					fs.writeFileSync(logFile, fileData);
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/head/' + logFile + 'sfsdfsdf',
+					}, function(res) {
+						console.log(res.headers);
+						expect(res.statusCode).to.equal(404);
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+				});
+			}
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/head/{logDir*} - for non-managed logDir', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(201);
+
+					var logFileName = 'ops.' + process.pid + '.log.001';
+					var fileData = '';
+					for ( var i = 0; i < 20; i++) {
+						fileData += ('#' + i + '\n');
+					}
+					var logFile = path.join(logDir, logFileName);
+					fs.writeFileSync(logFile, fileData);
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/head//sdfsdfsdf',
+					}, function(res) {
+						console.log(res.headers);
+						expect(res.statusCode).to.equal(404);
 						eventEmitter.emit('STOPPED');
 						setImmediate(done);
 					});

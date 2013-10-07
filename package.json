@@ -13,7 +13,8 @@
 				"lib/hapi-plugin.js",
 				"lib/routes.js",
 				"lib/handlers.js",
-				"lib/pkgInfo.js"
+				"lib/pkgInfo.js",
+				"lib/response-readable-stream.js"
 			]	
 		}
 	},
