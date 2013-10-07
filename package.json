@@ -12,6 +12,7 @@
 			"pattern":[
 				"lib/hapi-plugin.js",
 				"lib/routes.js",
+				"lib/handlers.js",
 				"lib/pkgInfo.js"
 			]	
 		}
@@ -24,8 +25,9 @@
 		"log4js":"0.6.x",
 		"extend":"1.2.x",
 		"runrightfast-commons":"git://github.com/runrightfast/runrightfast-commons.git#0.0.12",
-		"runrightfast-process-monitor-logs":"git://github.com/runrightfast/runrightfast-process-monitor-logs.git#0.0.2",
-		"pkginfo":"0.3.x"
+		"runrightfast-process-monitor-logs":"git://github.com/runrightfast/runrightfast-process-monitor-logs.git#0.0.3",
+		"pkginfo":"0.3.x",
+		"when":"2.5.x"
 	},
 	"devDependencies":{
 		"grunt":"~0.4.1",

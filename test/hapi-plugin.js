@@ -17,6 +17,7 @@
 
 var expect = require('chai').expect;
 var Hapi = require('hapi');
+var lodash = require('lodash');
 
 var events = require('runrightfast-commons').events;
 var eventEmitter = new events.AsyncEventEmitter();
@@ -141,7 +142,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 		});
 	});
 
-	it('GET /api/process-monitor-logs/logManager', function(done) {
+	it('GET /api/process-monitor-logs/logManager/logDir/{logDir*}', function(done) {
 		var options = {
 			eventEmitter : eventEmitter,
 			logLevel : 'DEBUG'
@@ -182,7 +183,63 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 		});
 	});
 
-	it('GET /api/process-monitor-logs/logManager', function(done) {
+	it('GET /api/process-monitor-logs/logManager/logDirListing/{logDir*}', function(done) {
+		var options = {
+			eventEmitter : eventEmitter,
+			logLevel : 'DEBUG'
+		};
+
+		var server = new Hapi.Server();
+		server.pack.require('../', options, function(err) {
+			if (err) {
+				done(err);
+			} else {
+				var payload = {
+					logDir : logDir
+				};
+
+				server.inject({
+					method : 'POST',
+					url : '/api/process-monitor-logs/logManager/logDir',
+					payload : JSON.stringify(payload),
+					headers : {
+						'Content-Type' : 'application/json'
+					}
+				}, function(res) {
+					expect(res.statusCode).to.equal(202);
+
+					var logFileName = 'ops.' + process.pid + '.log.001';
+					var logFile = path.join(logDir, logFileName);
+					fs.writeFileSync(logFile, '\nSOME DATA');
+
+					server.inject({
+						method : 'GET',
+						url : '/api/process-monitor-logs/logManager/logDirListing/' + logDir,
+					}, function(res) {
+						console.log(res.payload);
+						expect(res.statusCode).to.equal(200);
+						var files = JSON.parse(res.payload);
+						expect(lodash.isArray(files)).to.equal(true);
+						var f = lodash.find(files, function(file) {
+							return file.file === logFileName;
+						});
+						expect(f).to.exist;
+						expect(f.stats).to.exist;
+						expect(f.stats.size).to.exist;
+						expect(f.stats.mtime).to.exist;
+						expect(f.stats.ctime).to.exist;
+						expect(f.stats.atime).to.exist;
+						eventEmitter.emit('STOPPED');
+						setImmediate(done);
+					});
+
+				});
+			}
+
+		});
+	});
+
+	it('GET /api/process-monitor-logs/logManager/logDir/{logDir*}- returns 404 for a file that does not exist', function(done) {
 		var options = {
 			eventEmitter : eventEmitter,
 			logLevel : 'DEBUG'
@@ -211,6 +268,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						method : 'GET',
 						url : '/api/process-monitor-logs/logManager/logDir//sdfsdfsdf',
 					}, function(res) {
+						console.log(res.payload);
 						expect(res.statusCode).to.equal(404);
 						eventEmitter.emit('STOPPED');
 						setImmediate(done);
