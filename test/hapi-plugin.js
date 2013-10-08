@@ -365,7 +365,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 		});
 	});
 
-	it('GET /api/process-monitor-logs/logManager/tail/{logDir*}', function(done) {
+	it('GET /api/process-monitor-logs/logManager/tail/{logDir*} - using default params', function(done) {
 		var options = {
 			eventEmitter : eventEmitter,
 			logLevel : 'DEBUG'
@@ -402,8 +402,10 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						method : 'GET',
 						url : '/api/process-monitor-logs/logManager/tail/' + logFile,
 					}, function(res) {
+						console.log(res.payload);
 						console.log(res.headers);
 						expect(res.statusCode).to.equal(200);
+						expect(res.payload.length).to.be.gt(0);
 						eventEmitter.emit('STOPPED');
 						setImmediate(done);
 					});
@@ -500,54 +502,6 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						console.log(res.headers);
 						console.log(res.payload);
 						expect(res.statusCode).to.equal(404);
-						eventEmitter.emit('STOPPED');
-						setImmediate(done);
-					});
-				});
-			}
-		});
-	});
-
-	it('GET /api/process-monitor-logs/logManager/tail/{logDir*}?f=true', function(done) {
-		var options = {
-			eventEmitter : eventEmitter,
-			logLevel : 'DEBUG'
-		};
-
-		var server = new Hapi.Server();
-		server.pack.require('../', options, function(err) {
-			if (err) {
-				done(err);
-			} else {
-				var payload = {
-					logDir : logDir,
-					logLevel : 'DEBUG'
-				};
-
-				server.inject({
-					method : 'POST',
-					url : '/api/process-monitor-logs/logManager/logDir',
-					payload : JSON.stringify(payload),
-					headers : {
-						'Content-Type' : 'application/json'
-					}
-				}, function(res) {
-					expect(res.statusCode).to.equal(201);
-
-					var logFileName = 'ops.' + process.pid + '.log.001';
-					var fileData = '';
-					for ( var i = 0; i < 20; i++) {
-						fileData += ('#' + i + '\n');
-					}
-					var logFile = path.join(logDir, logFileName);
-					fs.writeFileSync(logFile, fileData);
-
-					server.inject({
-						method : 'GET',
-						url : '/api/process-monitor-logs/logManager/tail/' + logFile + '?f=true',
-					}, function(res) {
-						console.log(res.headers);
-						expect(res.statusCode).to.equal(200);
 						eventEmitter.emit('STOPPED');
 						setImmediate(done);
 					});
