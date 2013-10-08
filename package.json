@@ -1,6 +1,6 @@
 {
 	"name":"runrightfast-process-monitor-logs-hapi-plugin",
-	"version":"0.0.2",
+	"version":"0.0.3",
 	"description":"RunRightFast Hapi Plugin",
 	"repository":{
 		"type":"git",
@@ -26,7 +26,7 @@
 		"log4js":"0.6.x",
 		"extend":"1.2.x",
 		"runrightfast-commons":"git://github.com/runrightfast/runrightfast-commons.git#0.0.12",
-		"runrightfast-process-monitor-logs":"git://github.com/runrightfast/runrightfast-process-monitor-logs.git#0.0.6",
+		"runrightfast-process-monitor-logs":"git://github.com/runrightfast/runrightfast-process-monitor-logs.git#0.0.7",
 		"pkginfo":"0.3.x",
 		"when":"2.5.x"
 	},
