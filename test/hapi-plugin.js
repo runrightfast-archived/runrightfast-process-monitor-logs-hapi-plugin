@@ -510,7 +510,7 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 		});
 	});
 
-	it('GET /api/process-monitor-logs/logManager/head/{logDir*}', function(done) {
+	it.only('GET /api/process-monitor-logs/logManager/head/{logDir*}', function(done) {
 		var options = {
 			eventEmitter : eventEmitter,
 			logLevel : 'DEBUG'
@@ -547,8 +547,10 @@ describe('LoggingService Proxy Hapi Plugin', function() {
 						method : 'GET',
 						url : '/api/process-monitor-logs/logManager/head/' + logFile,
 					}, function(res) {
+						console.log(res.payload);
 						console.log(res.headers);
 						expect(res.statusCode).to.equal(200);
+						expect(res.payload.length).to.be.gt(0);
 						eventEmitter.emit('STOPPED');
 						setImmediate(done);
 					});
